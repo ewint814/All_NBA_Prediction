@@ -1,3 +1,4 @@
+#defining a function to get total season stats per player
 def get_player_total_season_stats(year):
     #from the api wrapper
     client.players_season_totals(
@@ -10,7 +11,7 @@ def get_player_total_season_stats(year):
     df.drop(columns = 'slug', inplace = True)
     return df.to_csv(f"./total_stats/{year-1}_{year}_player_season_totals.csv", index = False)
 
-#defining a function to combine players who were traded stats
+#defining a function to combine players who were traded total season stats
 def combine_traded_player_total_stats(df):
     player = df['name'].value_counts()
     multi_player = player[player > 1].index
@@ -36,7 +37,7 @@ def combine_traded_player_total_stats(df):
     df = pd.concat([df, combo_df], axis = 0).reset_index(drop = True)
     return df
 
-#defining a function to clean the team and positions column
+#defining a function to clean the team and positions column for total season stats
 def clean_total_stats(df):
     #make the positions and team columns title case
     df['team'] = df['team'].str.title()
@@ -55,7 +56,7 @@ def get_player_advanced_season_stats(year):
     df.drop(columns = ['slug', 'positions', 'age', 'team', 'minutes_played', 'is_combined_totals'] , inplace = True)
     return df.to_csv(f"./advanced_season_stat_total/{year-1}_{year}_advanced_player_season_totals.csv", index = False)
 
-#defining a function to combine players who were traded stats
+#defining a function to combine players who were traded advanced stats
 def combine_traded_player_advanced_stats(df):
     player = df['name'].value_counts()
     multi_player = player[player > 1].index
@@ -75,7 +76,7 @@ def combine_traded_player_advanced_stats(df):
     df.drop(columns = 'games_played', inplace = True)
     return df
 
-#define a function that scrape basketball reference per year
+#define a function that scrape basketball reference per year stats
 def get_per_game_stat(year):
     req = requests.get(f'https://www.basketball-reference.com/leagues/NBA_{year}_per_game.html')
     soup = BeautifulSoup(req.content, 'html.parser')
@@ -134,6 +135,7 @@ def get_per_game_stat(year):
     df.to_csv(f'./per_game_stat/per_game_stat_{year-1}_{year}.csv', index = False)
     return df
 
+#define function to deal with traded players
 def combine_traded_player_per_game_stats(df):
     player = df['name'].value_counts()
     multi_player = player[player > 1].index
@@ -155,35 +157,39 @@ def combine_traded_player_per_game_stats(df):
     df.drop(columns = 'team', inplace = True)
     return df
 
-#define a function that scrape basketball reference per year
-def get_award(award):
-    req = requests.get(f'https://www.basketball-reference.com/awards/{award}.html')
-    soup = BeautifulSoup(req.content, 'html.parser')
-    awards = []
+#define a function that scrape any award on basketball reference
+def get_award(award_list):
+    all_awards = pd.DataFrame()
+    for award in award_list:
+        req = requests.get(f'https://www.basketball-reference.com/awards/{award}.html')
+        soup = BeautifulSoup(req.content, 'html.parser')
+        awards = []
     
-    # Extracting each player and their specific season
-    for row in soup.find('tbody').find_all('tr'):
-        award_dict = {}
-        season = row.find('th', {'data-stat': 'season'})
-        if season:
-            award_dict['season'] = season.get_text()
+        # Extracting each player and their specific season
+        for row in soup.find('tbody').find_all('tr'):
+            award_dict = {}
+            season = row.find('th', {'data-stat': 'season'})
+            if season:
+                award_dict['season'] = season.get_text()
 
-        player = row.find('td', {'data-stat': 'player'})
-        if player:
-            player_found = player.find('a')
-            if player_found:
-                award_dict['name'] = player_found.getText()
-        #appending back to my list
-        awards.append(award_dict)
-    #create a dataframe of list
-    df = pd.DataFrame(awards)
-    df.reset_index(drop=True, inplace=True)
-    #adding a binary column to match award
-    df[f'{award}'] = 1
-    df.rename(columns = {f'{award}' : f'{award}'.upper()}, inplace = True)
-    return df
+            player = row.find('td', {'data-stat': 'player'})
+            if player:
+                player_found = player.find('a')
+                if player_found:
+                    award_dict['name'] = player_found.getText()
+            #appending back to my list
+            awards.append(award_dict)
+        #create a dataframe of list
+        df = pd.DataFrame(awards)
+        df.reset_index(drop=True, inplace=True)
+        #adding a binary column to match award
+        df[award.upper()] = 1
+        all_awards = pd.concat([all_awards, df], ignore_index=True)
+        all_awards.fillna(0, inplace = True)
+        df[award.upper()].astype(int)
+    return all_awards
 
-def scrape_year(year):
+def scrape_year(year, award_list):
     #scrape and clean total stats
     get_player_total_season_stats(year)
     df_total = pd.read_csv(f"./total_stats/{year-1}_{year}_player_season_totals.csv")
@@ -202,5 +208,16 @@ def scrape_year(year):
     df = pd.merge(df_advanced, df_total, on = 'name')
     #combine the total and per year stats dataframes
     df = pd.merge(df_per, df, on = 'name')
+    df = pd.get_dummies(df, columns=['positions'], dtype = int)
+    #adding season column for merge purposes with awards
+    df['season'] = f'{year-1}-{str(year)[-2:]}'
+    
+    #scrape awards and merge
+    for award in award_list:
+        accolade = get_award(award_list)
+    all_awards = pd.merge(accolade, df_all_nba, how = 'outer', on = ['season', 'name']).fillna(0)
+    #merge award and big df
+    df = pd.merge(df, all_awards, how = 'left', on = ['season', 'name'])
+    df.fillna(0, inplace = True)
     
     df.to_csv(f'./total/total_{year-1}_{year}.csv', index = False)
