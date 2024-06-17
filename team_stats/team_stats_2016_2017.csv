@@ -1,0 +1,31 @@
+team,wins,losses,win_loss_pct,team_pts_per_g,opp_pts_per_g,team_simple_rating_system
+Boston Celtics,53,29,.646,108.0,105.4,2.25
+Toronto Raptors,51,31,.622,106.9,102.6,3.65
+New York Knicks,31,51,.378,104.3,108.0,-3.87
+Philadelphia 76ers,28,54,.341,102.4,108.1,-5.83
+Brooklyn Nets,20,62,.244,105.8,112.5,-6.74
+Cleveland Cavaliers,51,31,.622,110.3,107.2,2.87
+Milwaukee Bucks,42,40,.512,103.6,103.8,-0.45
+Indiana Pacers,42,40,.512,105.1,105.3,-0.64
+Chicago Bulls,41,41,.500,102.9,102.4,0.03
+Detroit Pistons,37,45,.451,101.3,102.5,-1.29
+Washington Wizards,49,33,.598,109.2,107.4,1.36
+Atlanta Hawks,43,39,.524,103.2,104.0,-1.23
+Miami Heat,41,41,.500,103.2,102.1,0.77
+Charlotte Hornets,36,46,.439,104.9,104.7,-0.07
+Orlando Magic,29,53,.354,101.1,107.6,-6.61
+Utah Jazz,51,31,.622,100.7,96.8,4.00
+Oklahoma City Thunder,47,35,.573,106.6,105.8,1.14
+Portland Trail Blazers,41,41,.500,107.9,108.5,-0.23
+Denver Nuggets,40,42,.488,111.7,111.2,0.70
+Minnesota Timberwolves,31,51,.378,105.6,106.7,-0.64
+Golden State Warriors,67,15,.817,115.9,104.3,11.35
+Los Angeles Clippers,51,31,.622,108.7,104.4,4.42
+Sacramento Kings,32,50,.390,102.8,106.7,-3.29
+Los Angeles Lakers,26,56,.317,104.6,111.5,-6.29
+Phoenix Suns,24,58,.293,107.7,113.3,-5.14
+San Antonio Spurs,61,21,.744,105.3,98.1,7.13
+Houston Rockets,55,27,.671,115.3,109.6,5.84
+Memphis Grizzlies,43,39,.524,100.5,100.0,0.96
+New Orleans Pelicans,34,48,.415,104.3,106.4,-1.69
+Dallas Mavericks,33,49,.402,97.9,100.8,-2.53
